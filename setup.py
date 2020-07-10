@@ -38,7 +38,7 @@ from setuptools import find_packages, setup
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # BUMP VERSION HERE!
-_version_ = '0.0.4'
+_version_ = '0.0.5'
 
 # List all versions of Python which are supported
 python_minor_min = 5

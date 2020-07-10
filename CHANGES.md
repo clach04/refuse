@@ -1,5 +1,9 @@
 # Changes
 
+## 0.0.5 (2020-XX-XX)
+
+- (TBD)
+
 ## 0.0.4 (2020-07-10)
 
 - Added Python 3.8 support
