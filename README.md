@@ -44,6 +44,14 @@ You can alternatively also install the current `HEAD`, most likely very unstable
 pip install git+https://github.com/pleiszenburgrefuse.git@develop
 ```
 
+For development and testing
+
+```bash
+git clone https://github.com/pleiszenburg/refuse.git
+cd refuse
+pip install -e .
+```
+
 `refuse` (theoretically) runs on:
 
 <table>
