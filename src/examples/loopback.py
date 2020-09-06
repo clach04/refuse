@@ -8,8 +8,10 @@ from errno import EACCES
 from os.path import realpath
 from threading import Lock
 
-from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
+from refuse.high import FUSE, FuseOSError, Operations, LoggingMixIn
 
+def no_op(self, *args, **kwargs):
+    pass  # NOOP
 
 class Loopback(LoggingMixIn, Operations):
     def __init__(self, root):
@@ -24,7 +26,11 @@ class Loopback(LoggingMixIn, Operations):
             raise FuseOSError(EACCES)
 
     chmod = os.chmod
-    chown = os.chown
+    try:
+        chown = os.chown
+    except AttributeError:
+        # Probably Windows
+        chown = no_op
 
     def create(self, path, mode):
         return os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, mode)
@@ -51,7 +57,11 @@ class Loopback(LoggingMixIn, Operations):
 
     listxattr = None
     mkdir = os.mkdir
-    mknod = os.mknod
+    try:
+        mknod = os.mknod
+    except AttributeError:
+        # Probably Windows
+        mknod = no_op
     open = os.open
 
     def read(self, path, size, offset, fh):
@@ -73,10 +83,16 @@ class Loopback(LoggingMixIn, Operations):
     rmdir = os.rmdir
 
     def statfs(self, path):
-        stv = os.statvfs(path)
-        return dict((key, getattr(stv, key)) for key in (
-            'f_bavail', 'f_bfree', 'f_blocks', 'f_bsize', 'f_favail',
-            'f_ffree', 'f_files', 'f_flag', 'f_frsize', 'f_namemax'))
+        try:
+            stv = os.statvfs(path)
+            return dict((key, getattr(stv, key)) for key in (
+                'f_bavail', 'f_bfree', 'f_blocks', 'f_bsize', 'f_favail',
+                'f_ffree', 'f_files', 'f_flag', 'f_frsize', 'f_namemax'))
+        except AttributeError:
+            # Windows, sigh...
+            return dict((key, 0) for key in (
+                'f_bavail', 'f_bfree', 'f_blocks', 'f_bsize', 'f_favail',
+                'f_ffree', 'f_files', 'f_flag', 'f_frsize', 'f_namemax'))
 
     def symlink(self, target, source):
         return os.symlink(source, target)
